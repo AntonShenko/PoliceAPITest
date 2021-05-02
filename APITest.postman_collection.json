@@ -1,0 +1,171 @@
+{
+	"info": {
+		"_postman_id": "c29b8768-8594-479f-a6d2-aa0a7d72b4d5",
+		"name": "APITest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "GET LocationsInfo",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Response time is less than 200ms",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(800);",
+							"});",
+							"",
+							"//Verify if contant-type header equal application/json",
+							"pm.test(\"Verify if contant-type header equal application/json\", function(){",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).equal(\"application/json\");",
+							"});",
+							"",
+							"const resp = pm.response.json();",
+							"//console.log(resp);",
+							"",
+							"if(resp != 0) {",
+							"    //Simple check if first element in response Object icludes 4 key",
+							"    pm.test(\"Check if first element in response Object icludes 4 key\", function(){",
+							"        pm.expect(resp[0]).to.include.keys(\"bio\",\"contact_details\",\"name\",\"rank\");",
+							"    });",
+							"",
+							"    //Simple check if first element in response Object contain four keys strings",
+							"    const respKeys = Object.keys(resp[0]);",
+							"    pm.test(\"Check if first element in response Object contain four keys strings\", function(){",
+							"        pm.expect(respKeys).to.include(\"bio\",\"contact_details\",\"name\",\"rank\");",
+							"    });",
+							"    //console.log(resp[0].contact_details);",
+							"",
+							"    //Check if name values are not null and print names in the console",
+							"    pm.test(\"Check if name values are not null and print names in the console\", function(){",
+							"        var respLength = Object.keys(resp).length;",
+							"        var index = 0;",
+							"        for(var i = 0; i < respLength; i++){",
+							"            if(resp[i].name != 0){",
+							"                pm.expect(resp[i].name).not.eql(null);",
+							"                index++;",
+							"                console.log(index + \". Officer's Name:  \" + resp[i].name);",
+							"            } else{",
+							"            console.log(\"Name is NULL\");",
+							"            }",
+							"        }",
+							"    });",
+							"    console.log(\"Response body is not empty\");",
+							"} else{",
+							"    console.log(\"Response body is empty\");",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"var newIndex = pm.globals.get(\"index\");",
+							"newIndex= newIndex+1;",
+							"pm.globals.set(\"index\", newIndex);",
+							"",
+							"var allLocations = pm.globals.get(\"forcesList\")",
+							"var location=allLocations[newIndex-1];",
+							"pm.globals.set(\"forceLocation\", \"/forces/\"+location+\"/people\");",
+							"console.log(location);",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}{{forceLocation}}",
+					"host": [
+						"{{baseURL}}{{forceLocation}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET AllForces",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"//Status code is 200",
+							"pm.test(\"Status code is 200\", function () {",
+							"    pm.response.to.have.status(200);",
+							"});",
+							"",
+							"//Response time is less than 200ms",
+							"pm.test(\"Response time is less than 200ms\", function () {",
+							"    pm.expect(pm.response.responseTime).to.be.below(500);",
+							"});",
+							"",
+							"//Verify if contant-type header equal application/json",
+							"pm.test(\"Verify if contant-type header equal application/json\", function(){",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).equal(\"application/json\");",
+							"});",
+							"",
+							"const resp = pm.response.json();",
+							"//console.log(resp);",
+							"",
+							"//Get all IDs from Object and store them in a list ",
+							"var objectLength = Object.keys(resp);",
+							"//console.log(objectLength);",
+							"var list = [];",
+							"for(var i = 0; i < objectLength.length; i++){",
+							"    var oneForse = resp[i].id;",
+							"    pm.globals.set(\"forcesList\", list.add(oneForse));",
+							"};",
+							"",
+							"//loop through forcesList and just print values in consol",
+							"var allForse = pm.globals.get(\"forcesList\")",
+							"for(var i = 0; i < allForse.length; i++){",
+							"    console.log(allForse[i]);",
+							"};",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"pm.globals.set(\"baseURL\", \"https://data.police.uk/api\");",
+							"pm.globals.set(\"allForces\", \"/forces\");",
+							"pm.globals.set(\"forceLocation\", \"/forces/wiltshire/people\");",
+							"pm.globals.set(\"index\", 0);",
+							"",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseURL}}{{allForces}}",
+					"host": [
+						"{{baseURL}}{{allForces}}"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
